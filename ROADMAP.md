@@ -18,7 +18,7 @@ Aturan: kerjakan satu fase pada satu waktu. Pecah fase menjadi tugas kecil yang 
 Selesai jika: HP di Wi-Fi kafe membuka halaman web dari server, tes dasar lulus, dokumen terisi.
 
 ## Fase 1: Menu, Kasir tunai, Struk
-- [ ] Login PIN dan peran
+- [x] Login PIN dan peran
 - [ ] CRUD kategori dan menu, opsi menu
 - [ ] Layar kasir: keranjang, bayar tunai, kembalian
 - [ ] Penomoran pesanan harian

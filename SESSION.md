@@ -4,8 +4,8 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 
 ## Status saat ini
 
-- Fase aktif: 0 (Fondasi) - sisa 1 tugas (uji akses HP)
-- Tugas berjalan: completed (5 dari 6 push, menunggu uji HP)
+- Fase aktif: 1 (Fitur) - tugas 1.1 selesai
+- Tugas berjalan: completed (login PIN dan peral fully implemented)
 - Terakhir diperbarui: 2026-11-23
 
 ## Sudah selesai
@@ -14,15 +14,16 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - npm install, fix .gitignore, git init, connect remote origin, commit pertama
 - Pasang skills: caveman (.agents/skills/caveman/SKILL.md), ui-ux-pro-max (.agents/skills/ui-ux-pro-max beserta scripts dan data), ponytail (.agents/skills/ponytail/SKILL.md)
 - Write real Vitest test untuk /api/health dan migrasi database
-- Run npm test (2 tests pass: health endpoint, migration)
-- Run npm run lint (lulus)
+- Run npm test (6 tests pass: health, migration, auth)
+- Run npm run lint (lulus, 7 warnings)
 - Display /tmp/wsl2_access_steps.md dan save sebagai docs/wsl2-akses-hp.md
 - Commit setiap tugas selesai
 - Push ke cabang fase-1-kasir ke GitHub sudah selesai
+- Login PIN dan peran: fully implemented dengan scrypt hashing, rate limiting, role middleware
 
 ## Langkah berikutnya
 
-1. Uji akses dari HP di Wi-Fi yang sama (cek jaringan WSL2)
+1. Lanjut ke Fase 1.2: CRUD kategori dan menu
 2. Review dan commit perubahan remaining
 
 ## Keputusan terbuka (dari PRD bagian 14)

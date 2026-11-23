@@ -19,3 +19,16 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 - Jalankan npm test dan npm run lint, tampilkan hasilnya
 - Tampilkan /tmp/wsl2_access_steps.md lalu simpan sebagai docs/wsl2-akses-hp.md
 - Commit setiap tugas selesai
+
+### Ditambah Fase 1.1 (2026-11-23)
+- Implementasi login PIN dan peran (login, logout, me endpoint)
+- Hash PIN dengan scrypt dari node:crypto, tanpa dependensi baru
+- Sesi lewat cookie httpOnly dengan kedaluwarsa 30 hari
+- Pembatasan percobaan login: 5 kali salah dalam 5 menit untuk satu pengguna
+- Middleware peran untuk admin, kasir, dan dapur
+- Migrasi 002_sessions_table.sql untuk tabel sesi
+- Seed script scripts/seed-admin.js membaca PIN dari .env
+- Tambah ADMIN_PIN ke .env.example
+- Vitest auth.test.ts: hash & verifikasi PIN, login benar/salah, pembatasan percobaan, middleware menolak peran yang salah
+- 6 tes unit total (health, migration, auth)
+- Lint lulus dengan warnings

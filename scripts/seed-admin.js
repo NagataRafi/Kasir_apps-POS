@@ -18,7 +18,13 @@ if (!adminsPin) {
   process.exit(1)
 }
 
-// Hash PIN with scrypt
+// Validasi PANJANG PIN minimal 6 digit
+if (adminsPin.length < 6) {
+  console.error('ERROR: ADMIN_PIN harus memiliki minimal 6 digit')
+  process.exit(1)
+}
+
+// Hash PIN with scrypt (PIN tidak pernah dicetak ke log atau output console)
 const salt = crypto.randomBytes(16).toString('hex')
 const key = crypto.scryptSync(adminsPin, salt, 64)
 

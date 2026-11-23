@@ -37,11 +37,11 @@ export function registerAuthRoutes(fastify: any, options: any) {
     // Clear attempts on successful login
     clearLoginAttempts(user.id)
 
-    // Set session cookie httpOnly with expiry (30 days)
+    // Set session cookie httpOnly with expiry (12 hours)
     request.session = {
       userId: user.id,
       userRole: user.role,
-      expiry: Date.now() + 30 * 24 * 60 * 60 * 1000
+      expiry: Date.now() + 12 * 60 * 60 * 1000
     }
 
     return reply.send({ 
@@ -58,11 +58,13 @@ export function registerAuthRoutes(fastify: any, options: any) {
       clearLoginAttempts(userId)
     }
 
-    // Clear session cookie
+    // Clear session cookie - secure only aktif di production (NODE_ENV=production)
+    const isProduction = process.env.NODE_ENV === 'production'
     reply.clearCookie('session', {
       path: '/',
       httpOnly: true,
-      sameSite: 'lax'
+      sameSite: 'lax',
+      secure: isProduction
     })
 
     request.session = null

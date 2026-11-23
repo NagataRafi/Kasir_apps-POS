@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+
+# Production
+dist/
+*.env*
+
+# Database
+data.db
+*.db
+
+# Uploads
+/uploads/
+
+# Runtime
+*.pid
+*.seed
+
+# Logs
+logs/*.log
+
+# Coverage
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak

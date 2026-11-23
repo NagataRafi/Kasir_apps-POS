@@ -53,6 +53,8 @@ Tes wajib untuk: total dan kembalian, potong dan kembalikan stok, transisi statu
 
 ## Git
 
-- Satu cabang per fase (contoh fase-1-kasir). Gabung ke main setelah fase selesai dan lulus tes.
-- Commit kecil dan sering.
-- Jangan force push.
+- Agent boleh git push ke cabang kerja per fase (contoh fase-1-kasir) setiap kali satu tugas selesai dan tes lulus.
+- Agent tidak boleh push ke main, tidak boleh force push, tidak boleh menghapus cabang remote, tidak boleh membaca atau menampilkan isi folder ~/.config/gh atau token apa pun, dan tidak boleh mengubah konfigurasi git atau gh.
+- Kombinasi ke main dilakukan pemilik lewat pull request.
+- Pesan commit satu baris tanpa karakter \n.
+- Contoh cabang: fase-1-kasir, fase-2-menu, dst.

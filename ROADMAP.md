@@ -13,7 +13,7 @@ Aturan: kerjakan satu fase pada satu waktu. Pecah fase menjadi tugas kecil yang 
 - [ ] Server menyajikan berkas statis web
 - [ ] .env.example dan .gitignore
 - [ ] Uji akses dari HP di Wi-Fi yang sama (cek jaringan WSL2)
-- [ ] Commit pertama dan push ke GitHub
+- [x] Commit pertama dan push ke GitHub
 
 Selesai jika: HP di Wi-Fi kafe membuka halaman web dari server, tes dasar lulus, dokumen terisi.
 

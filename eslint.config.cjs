@@ -1,15 +1,13 @@
-export default [
+module.exports = [
   {
     languageOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'module',
+      sourceType: 'commonjs',
       globals: {
         console: 'readonly',
       },
     },
-    ignores: [
-      'coverage/
-    ],
+    ignores: ['coverage/'],
     rules: {
       'no-console': 'warn',
       'no-unused-vars': 'warn',

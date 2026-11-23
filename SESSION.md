@@ -5,18 +5,24 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 0 (Fondasi)
-- Tugas berjalan: belum ada
+- Tugas berjalan: completed (6 dari 6)
 - Terakhir diperbarui: 2026-11-23
 
 ## Sudah selesai
 
-- PRD.md, ARCHITECTURE.md, ROADMAP.md, SESSION.md, CHANGELOG.md, knowledge.md dibuat (versi 0.1)
+- Move files from /tmp/kasir_phase0 to current folder (server, web, migrations, tests, package.json, package-lock.json, tsconfig.json, vitest.config.ts, .gitignore, .env-example - NOT node_modules, data.db, helper scripts)
+- npm install, fix .gitignore, git init, connect remote origin, commit pertama
+- Pasang skills: caveman (.agents/skills/caveman/SKILL.md), ui-ux-pro-max (.agents/skills/ui-ux-pro-max beserta scripts dan data), ponytail (.agents/skills/ponytail/SKILL.md)
+- Write real Vitest test untuk /api/health dan migrasi database
+- Run npm test (2 tests pass: health endpoint, migration)
+- Run npm run lint (lulus)
+- Display /tmp/wsl2_access_steps.md dan save sebagai docs/wsl2-akses-hp.md
+- Commit setiap tugas selesai
 
 ## Langkah berikutnya
 
-1. Jalankan PROMPT_AWAL.md di Freebuff untuk Fase 0.
-2. Pasang skills: ponytail, caveman, ui-ux-pro-max.
-3. Uji akses server dari HP di Wi-Fi yang sama.
+1. Lanjut ke Fase 1: Menu, Kasir tunai, Struk
+2. Review dan commit perubahan remaining
 
 ## Keputusan terbuka (dari PRD bagian 14)
 

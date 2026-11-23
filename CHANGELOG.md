@@ -20,6 +20,15 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 - Tampilkan /tmp/wsl2_access_steps.md lalu simpan sebagai docs/wsl2-akses-hp.md
 - Commit setiap tugas selesai
 
+### Diperbaiki Fase 1.1 (audit kedua, 2026-11-23)
+- Migrasi 002 diperbaiki: CREATE INDEX valid dengan nama tabel, kolom user_role dihapus, id INTEGER PRIMARY KEY, token_hash UNIQUE, FK users ON DELETE CASCADE.
+- Database lokal data/*.db dihapus lalu semua migrasi dijalankan ulang; pelaksana migrasi transaksional dan berhenti dengan pesan jelas saat SQL error.
+- Token sesi 32 byte hex di cookie; database hanya menyimpan SHA-256 di token_hash; verifikasi dengan hashing token cookie.
+- Cookie httpOnly, sameSite lax, path /, maxAge 12 jam, secure hanya production. Kedaluwarsa DB 12 jam.
+- Pembatasan login dua lapis: per nama (termasuk nama tidak ada) 5 gagal/5 menit, per IP 20 gagal/10 menit. Respons nama salah identik dengan PIN salah.
+- Halaman login /login dengan papan angka besar, validasi minimal 6 digit, redirect ke /kasir, /dapur, /admin sesuai peran.
+- Tes baru auth-security: token hash di DB = SHA-256 cookie, nama tidak ada terkunci, batas per IP, respons identik, semua migrasi berurutan.
+
 ### Ditambah Fase 1.1 (2026-11-23)
 - Implementasi login PIN dan peran (login, logout, me endpoint)
 - Hash PIN dengan scrypt dari node:crypto, tanpa dependensi baru

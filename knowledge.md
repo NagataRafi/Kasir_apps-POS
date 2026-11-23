@@ -10,6 +10,7 @@ Proyek: aplikasi POS untuk satu kafe. Pemilik berbahasa Indonesia.
 
 ## Akhiri setiap tugas
 
+0. Agent tidak boleh menulis "selesai" atau mencentang tugas tanpa menampilkan keluaran perintah yang membuktikannya. Setiap klaim harus disertai keluaran perintah (npm test, npm run lint, cat, grep, ls, git diff --stat).
 1. Jalankan tes dan lint. Perbaiki sampai lulus.
 2. Centang tugas di ROADMAP.md.
 3. Perbarui SESSION.md dan CHANGELOG.md.

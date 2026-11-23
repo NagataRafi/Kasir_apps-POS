@@ -1,45 +1,73 @@
 import Database from 'better-sqlite3'
+import fs from 'fs'
+import path from 'path'
 
-export const db = new Database('data.db', { 
-  verbose: false 
-})
+export const DEFAULT_DB_PATH = process.env.DATABASE_URL || path.join('data', 'data.db')
 
-db.pragma('journal_mode = WAL')
-db.pragma('synchronous = NORMAL')
+/**
+ * Jalankan SEMUA berkas migrasi (*.sql) di `migrationsDir` secara berurutan.
+ * Tiap migrasi berjalan dalam satu transaksi. Bila SQL error, transaksi
+ * di-rollback dan fungsi melempar Error dengan pesan jelas.
+ * Hanya migrasi yang belum tercatat di tabel `migrations` yang dijalankan.
+ */
+export function runMigrations(database: Database.Database, migrationsDir = 'migrations'): string[] {
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS migrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      filename TEXT NOT NULL UNIQUE,
+      applied_at TEXT DEFAULT (datetime('now'))
+    );
+  `)
 
-// Create tables for foundation
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('admin', 'kasir', 'dapur')),
-    pin_hash TEXT,
-    active INTEGER DEFAULT 1
-  );
+  const applied = new Set(
+    (database.prepare('SELECT filename FROM migrations').all() as { filename: string }[]).map(
+      (r) => r.filename
+    )
+  )
 
-  CREATE TABLE IF NOT EXISTS settings (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-  );
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort()
 
-  CREATE TABLE IF NOT EXISTS migrations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    filename TEXT NOT NULL UNIQUE,
-    applied_at TEXT DEFAULT (datetime('now'))
-  );
-`)
+  const ran: string[] = []
 
-export function migrate(filename: string) {
-  const [row] = db.prepare(
-    'SELECT COUNT(*) FROM migrations WHERE filename = ?'
-  ).get(filename)
+  for (const filename of files) {
+    if (applied.has(filename)) continue
+    const sql = fs.readFileSync(path.join(migrationsDir, filename), 'utf-8')
 
-  if (row === undefined) {
-    db.prepare('BEGIN TRANSACTION').run()
-    const sql = require('fs').readFileSync(`migrations/${filename}`, 'utf-8')
-    db.exec(sql)
-    db.prepare('INSERT INTO migrations (filename) VALUES (?)').run(filename)
-    db.prepare('COMMIT').run()
-    console.log(`Applied migration: ${filename}`)
+    const tx = database.transaction(() => {
+      database.exec(sql)
+      database.prepare('INSERT INTO migrations (filename) VALUES (?)').run(filename)
+    })
+
+    try {
+      tx()
+      ran.push(filename)
+      console.log(`Applied migration: ${filename}`)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error(`MIGRATION FAILED: ${filename}`)
+      console.error(`SQL error: ${message}`)
+      throw new Error(`Migrasi ${filename} gagal dan di-rollback: ${message}`)
+    }
   }
+
+  return ran
 }
+
+/** Buka database file, aktifkan pragma, dan jalankan semua migrasi. */
+export function openAndMigrate(dbPath = DEFAULT_DB_PATH, migrationsDir = 'migrations') {
+  const dir = path.dirname(dbPath)
+  if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+
+  const database = new Database(dbPath)
+  database.pragma('journal_mode = WAL')
+  database.pragma('synchronous = NORMAL')
+  database.pragma('foreign_keys = ON')
+  runMigrations(database, migrationsDir)
+  return database
+}
+
+export const db = openAndMigrate()
+export const migrateAll = (dir = 'migrations') => runMigrations(db, dir)

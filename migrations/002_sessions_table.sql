@@ -1,11 +1,11 @@
 -- Migration 002: Create sessions table for authenticated users
--- Stores session data with httpOnly cookie support
--- Uses SQLite schema for session management
+-- Stores SHA-256 hashes of session tokens, never the raw token.
+-- Session expires in 12 hours.
 
 CREATE TABLE IF NOT EXISTS sessions (
-  id TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
+  token_hash TEXT NOT NULL UNIQUE,
   user_id INTEGER NOT NULL,
-  user_role TEXT NOT NULL CHECK (user_role IN ('admin', 'kasir', 'dapur')),
   ip_address TEXT,
   user_agent TEXT,
   expires_at DATETIME NOT NULL,
@@ -16,5 +16,4 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 -- Index for fast session lookup by user and expiry
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id);
-CREATE INDEX IF NOT EXISTS idx_sessions_expires ON expires_at;
-CREATE INDEX IF NOT EXISTS idx_sessions_active ON user_role, expires_at;
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions (expires_at);

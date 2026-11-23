@@ -1,33 +1,54 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
+import type Database from 'better-sqlite3'
+import { findSession, SESSION_COOKIE } from './session'
+import { parseCookies } from '../../lib/cookie'
 
-export function requireAuth(request: FastifyRequest, reply: FastifyReply, next: any) {
-  const session = (request as any).session
+export type Role = 'admin' | 'kasir' | 'dapur'
 
-  if (!session?.userId) {
-    return reply.code(401).send({ error: 'Authentication required' })
-  }
-
-  next()
+export interface AuthMiddleware {
+  requireAuth: (request: FastifyRequest, reply: FastifyReply, next: (err?: Error) => void) => void
+  requireRole: (
+    ...roles: Role[]
+  ) => (request: FastifyRequest, reply: FastifyReply, next: (err?: Error) => void) => void
+  roles: Record<Role, (request: FastifyRequest, reply: FastifyReply, next: (err?: Error) => void) => void>
 }
 
-export function requireRole(...allowedRoles: ('admin' | 'kasir' | 'dapur')[]) {
-  return async (request: FastifyRequest, reply: FastifyReply, next: any) => {
-    const session = (request as any).session
-
-    if (!session?.userId) {
-      return reply.code(401).send({ error: 'Authentication required' })
+export function createAuthMiddleware(db: Database.Database): AuthMiddleware {
+  const requireAuth = (request: FastifyRequest, reply: FastifyReply, next: (err?: Error) => void) => {
+    const cookies = parseCookies(request.headers.cookie)
+    const session = findSession(db, cookies[SESSION_COOKIE] ?? '')
+    if (!session) {
+      reply.code(401).send({ error: 'Authentication required' })
+      return
     }
-
-    if (!allowedRoles.includes(session.userRole as any)) {
-      return reply.code(403).send({ error: `Access denied. Required roles: ${allowedRoles.join(', ')}` })
-    }
-
+    ;(request as any).user = session
     next()
   }
-}
 
-export const roles = {
-  admin: requireRole('admin'),
-  kasir: requireRole('kasir'),
-  dapur: requireRole('dapur'),
+  const requireRole = (...roles: Role[]) => {
+    return (request: FastifyRequest, reply: FastifyReply, next: (err?: Error) => void) => {
+      const cookies = parseCookies(request.headers.cookie)
+      const session = findSession(db, cookies[SESSION_COOKIE] ?? '')
+      if (!session) {
+        reply.code(401).send({ error: 'Authentication required' })
+        return
+      }
+      ;(request as any).user = session
+      if (!roles.includes(session.role)) {
+        reply.code(403).send({ error: `Access denied. Required roles: ${roles.join(', ')}` })
+        return
+      }
+      next()
+    }
+  }
+
+  return {
+    requireAuth,
+    requireRole,
+    roles: {
+      admin: requireRole('admin'),
+      kasir: requireRole('kasir'),
+      dapur: requireRole('dapur')
+    }
+  }
 }

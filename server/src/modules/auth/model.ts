@@ -1,10 +1,10 @@
 import Database from 'better-sqlite3'
-import { open } from 'sqlite'
 import crypto from 'crypto'
-import path from 'path'
 
-const FIVE_MINUTES_MS = 5 * 60 * 1000
-const MAX_ATTEMPTS = 5
+export const USERNAME_MAX_ATTEMPTS = 5
+export const USERNAME_WINDOW_MS = 5 * 60 * 1000
+export const IP_MAX_ATTEMPTS = 20
+export const IP_WINDOW_MS = 10 * 60 * 1000
 
 export interface User {
   id: number
@@ -14,67 +14,113 @@ export interface User {
   active: boolean
 }
 
-export interface LoginAttempt {
-  userId: number
+interface AttemptRecord {
   count: number
   firstAttempt: number
 }
 
 let db: Database.Database | null = null
-let loginAttempts: Map<number, LoginAttempt> = new Map()
+const usernameAttempts = new Map<string, AttemptRecord>()
+const ipAttempts = new Map<string, AttemptRecord>()
 
 export function initDb(database: Database.Database) {
   db = database
 }
 
-export async function findUserByName(name: string): Promise<User | null> {
+export function getDb(): Database.Database {
   if (!db) throw new Error('Database not initialized')
-  const row = db.prepare('SELECT * FROM users WHERE name = ?').get(name) as User | undefined
-  return row || null
+  return db
+}
+
+export async function findUserByName(name: string): Promise<User | null> {
+  const row = getDb().prepare('SELECT * FROM users WHERE name = ?').get(name) as User | undefined
+  return row ?? null
 }
 
 export async function findUserById(id: number): Promise<User | null> {
-  if (!db) throw new Error('Database not initialized')
-  const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined
-  return row || null
+  const row = getDb().prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined
+  return row ?? null
 }
 
-export async function verifyPin(enteredPin: string, storedHash: string): Promise<boolean> {
-  if (!storedHash) return false
-  return new Promise((resolve) => {
-    crypto.scrypt(enteredPin, storedHash.slice(0, 16), 64, (err, derivedKey) => {
-      if (err) return resolve(false)
-      resolve(derivedKey.toString('hex') === storedHash)
-    })
-  })
+/** Hash PIN sebagai `saltHex:keyHex` pakai scrypt. Tidak ada dependensi baru. */
+export function hashPin(pin: string): string {
+  const salt = crypto.randomBytes(16).toString('hex')
+  const key = crypto.scryptSync(pin, salt, 64).toString('hex')
+  return `${salt}:${key}`
 }
 
-export function recordLoginAttempt(userId: number): void {
-  const now = Date.now()
-  const attempt = loginAttempts.get(userId)
-
-  if (attempt) {
-    if (now - attempt.firstAttempt > FIVE_MINUTES_MS) {
-      // Reset window
-      loginAttempts.set(userId, { userId, count: 1, firstAttempt: now })
-    } else {
-      attempt.count += 1
-      loginAttempts.set(userId, attempt)
-    }
-  } else {
-    loginAttempts.set(userId, { userId, count: 1, firstAttempt: now })
+/** Verifikasi PIN terhadap hash `saltHex:keyHex` memakai perbandingan timing-safe. */
+export function verifyPin(pin: string, storedHash: string | null): boolean {
+  if (!storedHash || !storedHash.includes(':')) return false
+  const [salt, key] = storedHash.split(':')
+  if (!salt || !key) return false
+  try {
+    const derived = crypto.scryptSync(pin, salt, 64)
+    const expected = Buffer.from(key, 'hex')
+    if (expected.length !== derived.length) return false
+    return crypto.timingSafeEqual(derived, expected)
+  } catch {
+    return false
   }
 }
 
-export function getLoginAttemptCount(userId: number): { count: number, resetAt: number } {
-  const attempt = loginAttempts.get(userId)
-  if (!attempt) return { count: 0, resetAt: 0 }
-  const remaining = Math.max(0, FIVE_MINUTES_MS - (Date.now() - attempt.firstAttempt))
-  return { count: attempt.count, resetAt: remaining }
+function record(map: Map<string, AttemptRecord>, key: string, windowMs: number): void {
+  const now = Date.now()
+  const rec = map.get(key)
+  if (rec && now - rec.firstAttempt <= windowMs) {
+    rec.count += 1
+  } else {
+    map.set(key, { count: 1, firstAttempt: now })
+  }
+}
+
+function read(map: Map<string, AttemptRecord>, key: string, windowMs: number): { count: number; resetAt: number } {
+  const rec = map.get(key)
+  if (!rec) return { count: 0, resetAt: 0 }
+  if (Date.now() - rec.firstAttempt > windowMs) {
+    map.delete(key)
+    return { count: 0, resetAt: 0 }
+  }
+  return { count: rec.count, resetAt: windowMs - (Date.now() - rec.firstAttempt) }
+}
+
+// --- Pembatasan per nama pengguna (berlaku juga untuk nama yang tidak ada) ---
+export function recordUsernameFailure(name: string): void {
+  record(usernameAttempts, name, USERNAME_WINDOW_MS)
+}
+
+export function getUsernameFailures(name: string): { count: number; resetAt: number } {
+  return read(usernameAttempts, name, USERNAME_WINDOW_MS)
+}
+
+export function clearUsernameFailures(name: string): void {
+  usernameAttempts.delete(name)
+}
+
+// --- Pembatasan per alamat IP ---
+export function recordIpFailure(ip: string): void {
+  record(ipAttempts, ip, IP_WINDOW_MS)
+}
+
+export function getIpFailures(ip: string): { count: number; resetAt: number } {
+  return read(ipAttempts, ip, IP_WINDOW_MS)
+}
+
+export function clearIpFailures(ip: string): void {
+  ipAttempts.delete(ip)
+}
+
+// Kompatibilitas nama lama dipakai beberapa tes.
+export function recordLoginAttempt(userId: number): void {
+  recordUsernameFailure(`user:${userId}`)
+}
+
+export function getLoginAttemptCount(userId: number): { count: number; resetAt: number } {
+  return getUsernameFailures(`user:${userId}`)
 }
 
 export function clearLoginAttempts(userId: number): void {
-  loginAttempts.delete(userId)
+  clearUsernameFailures(`user:${userId}`)
 }
 
 export async function createUser(
@@ -82,28 +128,16 @@ export async function createUser(
   role: 'admin' | 'kasir' | 'dapur',
   pin: string
 ): Promise<User> {
-  if (!db) throw new Error('Database not initialized')
+  const pinHash = hashPin(pin)
+  const result = getDb()
+    .prepare('INSERT INTO users (name, role, pin_hash, active) VALUES (?, ?, ?, 1)')
+    .run(name, role, pinHash)
 
-  // Hash PIN with scrypt
-  const salt = crypto.randomBytes(16).toString('hex')
-  const key = await new Promise<Buffer>((resolve, reject) => {
-    crypto.scrypt(pin, salt, 64, (err, key) => {
-      if (err) reject(err)
-      else resolve(key)
-    })
-  })
+  return { id: Number(result.lastInsertRowid), name, role, pin_hash: pinHash, active: true }
+}
 
-  const pinHash = key.toString('hex')
-
-  const result = db.prepare(
-    `INSERT INTO users (name, role, pin_hash, active) VALUES (?, ?, ?, 1)`
-  ).run(name, role, pinHash)
-
-  return {
-    id: result.lastInsertRowid,
-    name,
-    role,
-    pin_hash: pinHash,
-    active: true
-  }
+/** Kosongkan state rate-limit in-memory (dipakai tes). */
+export function resetAllAttempts(): void {
+  usernameAttempts.clear()
+  ipAttempts.clear()
 }

@@ -1,94 +1,102 @@
-import { FastifyRequest, FastifyReply } from 'fastify'
-import { findUserByName, verifyPin, recordLoginAttempt, getLoginAttemptCount, clearLoginAttempts, createUser } from './model'
-import path from 'path'
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
+import {
+  findUserByName,
+  verifyPin,
+  getUsernameFailures,
+  recordUsernameFailure,
+  clearUsernameFailures,
+  getIpFailures,
+  recordIpFailure,
+  USERNAME_MAX_ATTEMPTS,
+  IP_MAX_ATTEMPTS
+} from './model'
+import {
+  SESSION_COOKIE,
+  SESSION_TTL_MS,
+  createSession,
+  findSession,
+  deleteSessionByToken
+} from './session'
+import { parseCookies, serializeCookie, clearCookie } from '../../lib/cookie'
 
-export function registerAuthRoutes(fastify: any, options: any) {
-  // Login endpoint
+const INVALID_CREDENTIALS = { error: 'Invalid credentials' }
+
+function isProduction(): boolean {
+  return process.env.NODE_ENV === 'production'
+}
+
+function sessionCookie(token: string, maxAgeSec: number): string {
+  return serializeCookie(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: maxAgeSec,
+    secure: isProduction()
+  })
+}
+
+export function registerAuthRoutes(fastify: FastifyInstance, opts: { db: any }) {
+  const db = opts.db
+
   fastify.post('/api/login', async (request: FastifyRequest, reply: FastifyReply) => {
-    const { name, pin } = request.body as { name: string; pin: string }
+    const { name, pin } = (request.body ?? {}) as { name?: string; pin?: string }
+    const ip = request.ip ?? 'unknown'
 
     if (!name || !pin) {
       return reply.code(400).send({ error: 'Name and PIN are required' })
     }
 
-    // Check login attempt rate limit
+    // Lapis 2: pembatasan per IP (20 gagal / 10 menit)
+    if (getIpFailures(ip).count >= IP_MAX_ATTEMPTS) {
+      return reply.code(429).send({ error: 'Too many login attempts from this IP. Try again later.' })
+    }
+
+    // Lapis 1: pembatasan per nama (5 gagal / 5 menit), termasuk nama tidak ada
+    if (getUsernameFailures(name).count >= USERNAME_MAX_ATTEMPTS) {
+      return reply.code(423).send({ error: 'Account temporarily locked. Try again later.' })
+    }
+
     const user = await findUserByName(name)
+
+    // Nama salah dan PIN salah memberi respons identik.
     if (!user) {
-      return reply.code(401).send({ error: 'Invalid credentials' })
+      recordUsernameFailure(name)
+      recordIpFailure(ip)
+      return reply.code(401).send(INVALID_CREDENTIALS)
     }
 
-    const attemptInfo = getLoginAttemptCount(user.id)
-
-    if (attemptInfo.count >= MAX_ATTEMPTS) {
-      return reply.code(423).send({ error: 'Account locked. Too many failed attempts. Try again later.' })
+    if (!verifyPin(pin, user.pin_hash)) {
+      recordUsernameFailure(name)
+      recordIpFailure(ip)
+      return reply.code(401).send(INVALID_CREDENTIALS)
     }
 
-    const valid = await verifyPin(pin, user.pin_hash!)
+    // Sukses: bersihkan hitungan untuk nama ini
+    clearUsernameFailures(name)
 
-    if (!valid) {
-      recordLoginAttempt(user.id)
-      const newAttemptInfo = getLoginAttemptCount(user.id)
-      return reply.code(401).send({ 
-        error: 'Invalid credentials', 
-        attemptRemain: MAX_ATTEMPTS - newAttemptInfo.count 
-      })
-    }
+    const userAgent = request.headers['user-agent'] ?? null
+    const { token } = createSession(db, user.id, ip, userAgent)
 
-    // Clear attempts on successful login
-    clearLoginAttempts(user.id)
-
-    // Set session cookie httpOnly with expiry (12 hours)
-    request.session = {
-      userId: user.id,
-      userRole: user.role,
-      expiry: Date.now() + 12 * 60 * 60 * 1000
-    }
-
-    return reply.send({ 
-      status: 'ok', 
-      user: { id: user.id, name: user.name, role: user.role } 
-    })
+    reply.header('Set-Cookie', sessionCookie(token, Math.floor(SESSION_TTL_MS / 1000)))
+    return reply.send({ status: 'ok', user: { id: user.id, name: user.name, role: user.role } })
   })
 
-  // Logout endpoint
   fastify.post('/api/logout', async (request: FastifyRequest, reply: FastifyReply) => {
-    const userId = (request as any).session?.userId
+    const cookies = parseCookies(request.headers.cookie)
+    const token = cookies[SESSION_COOKIE]
+    if (token) deleteSessionByToken(db, token)
 
-    if (userId) {
-      clearLoginAttempts(userId)
-    }
-
-    // Clear session cookie - secure only aktif di production (NODE_ENV=production)
-    const isProduction = process.env.NODE_ENV === 'production'
-    reply.clearCookie('session', {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: isProduction
-    })
-
-    request.session = null
-
-    return { status: 'ok' }
+    reply.header(
+      'Set-Cookie',
+      clearCookie(SESSION_COOKIE, { httpOnly: true, sameSite: 'lax', path: '/', secure: isProduction() })
+    )
+    return reply.send({ status: 'ok' })
   })
 
-  // Me endpoint - get current user
   fastify.get('/api/me', async (request: FastifyRequest, reply: FastifyReply) => {
-    const session = (request as any).session
-
-    if (!session?.userId) {
-      return reply.code(401).send({ error: 'Not authenticated' })
-    }
-
-    const user = await findUserById(session.userId)
-
-    if (!user) {
-      return reply.code(404).send({ error: 'User not found' })
-    }
-
-    return send({ 
-      status: 'ok', 
-      user: { id: user.id, name: user.name, role: user.role } 
-    })
+    const cookies = parseCookies(request.headers.cookie)
+    const session = findSession(db, cookies[SESSION_COOKIE] ?? '')
+    if (!session) return reply.code(401).send({ error: 'Not authenticated' })
+    return reply.send({ status: 'ok', user: { id: session.id, name: session.name, role: session.role } })
   })
 }

@@ -8,6 +8,14 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Tugas berjalan: completed (login PIN dan peral fully implemented)
 - Terakhir diperbarui: 2026-11-23
 
+## Catatan perbaikan 1.1 (2026-11-23)
+- Migrasi 002 ditulis ulang valid (CREATE INDEX dengan nama tabel, tanpa user_role).
+- Token sesi: crypto.randomBytes(32) hex di cookie, DB hanya SHA-256 di token_hash.
+- Cookie: httpOnly, sameSite lax, path /, maxAge 12 jam, secure hanya NODE_ENV=production.
+- Rate limit dua lapis: per nama (termasuk nama tidak ada) 5/5 menit; per IP 20/10 menit. Respons nama salah = PIN salah.
+- Halaman login /login dengan papan angka besar, redirect sesuai peran.
+- Migrasi dari database kosong dijalankan ulang (data/data.db). 19 tes lulus, lint 0 error.
+
 ## Sudah selesai
 
 - Move files from /tmp/kasir_phase0 to current folder (server, web, migrations, tests, package.json, package-lock.json, tsconfig.json, vitest.config.ts, .gitignore, .env-example - NOT node_modules, data.db, helper scripts)

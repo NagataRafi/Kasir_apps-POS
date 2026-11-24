@@ -1,5 +1,6 @@
 import React from 'react'
 import LoginPage from './pages/login'
+import AdminMenuPage from './pages/admin/menu'
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -21,7 +22,7 @@ function App() {
   }
   if (path.startsWith('/kasir')) return <Placeholder title="Layar Kasir" />
   if (path.startsWith('/dapur')) return <Placeholder title="Layar Dapur" />
-  if (path.startsWith('/admin')) return <Placeholder title="Halaman Admin" />
+  if (path.startsWith('/admin')) return <AdminMenuPage />
 
   return <LoginPage />
 }

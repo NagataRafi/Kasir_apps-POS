@@ -5,6 +5,7 @@ import { db } from './db/index'
 import { initDb } from './modules/auth/model'
 import { registerAuthRoutes } from './modules/auth/routes'
 import { createAuthMiddleware } from './modules/auth/middleware'
+import { registerMenuRoutes } from './modules/menu/routes'
 
 // db dibuka dan semua migrasi dijalankan berurutan oleh db/index.ts.
 initDb(db)
@@ -16,12 +17,15 @@ fastify.get('/api/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() }
 })
 
+// Middleware peran
+const auth = createAuthMiddleware(db)
+fastify.decorate('auth', auth)
+
 // Auth: login, logout, me
 registerAuthRoutes(fastify, { db })
 
-// Middleware peran tersedia untuk modul berikutnya
-const auth = createAuthMiddleware(db)
-fastify.decorate('auth', auth)
+// Kategori dan menu (F-01) + GET /api/public/menu
+registerMenuRoutes(fastify, { db, auth })
 
 // Serve static files from web/dist directory
 const webDistPath = path.resolve('web/dist')

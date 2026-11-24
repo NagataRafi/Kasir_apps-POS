@@ -4,9 +4,17 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 
 ## Status saat ini
 
-- Fase aktif: 1 (Fitur) - tugas 1.1 selesai
-- Tugas berjalan: completed (login PIN dan peral fully implemented)
-- Terakhir diperbarui: 2026-11-23
+- Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
+- Tugas berjalan: completed (kategori dan menu, API dan halaman admin)
+- Terakhir diperbarui: 2026-11-24
+
+## Catatan tugas 1.2 (2026-11-24)
+- Audit ulang 1.1: 8 syarat OK. Tidak ada perubahan source; DB lokal dihapus dan migrasi 001+002 dijalankan ulang.
+- Migrasi 003: categories (id, name, sort, active) dan menu_items (id, category_id, name, description, price, photo_path, available, sort). Harga INTEGER dengan CHECK >= 0 dan bilangan bulat.
+- API: /api/categories dan /api/menu-items (GET admin+kasir, tulis admin), /api/*/order untuk ubah urutan, /api/categories/:id/active, /api/menu-items/:id/available. Tanpa hapus permanen.
+- Publik: GET /api/public/menu hanya kategori aktif dan menu tersedia, tanpa sort/active/category_id.
+- Halaman admin: web/src/pages/admin/menu.tsx di rute /admin.
+- 26 tes lulus, lint 0 error (12 warning lama).
 
 ## Catatan perbaikan 1.1 (2026-11-23)
 - Migrasi 002 ditulis ulang valid (CREATE INDEX dengan nama tabel, tanpa user_role).
@@ -28,11 +36,12 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Commit setiap tugas selesai
 - Push ke cabang fase-1-kasir ke GitHub sudah selesai
 - Login PIN dan peran: fully implemented dengan scrypt hashing, rate limiting, role middleware
+- Tugas 1.2: migrasi 003, API kategori/menu, GET /api/public/menu, halaman admin kategori dan menu, tes menu
 
 ## Langkah berikutnya
 
-1. Lanjut ke Fase 1.2: CRUD kategori dan menu
-2. Review dan commit perubahan remaining
+1. Tugas 1.3: layar kasir (keranjang, bayar tunai, kembalian)
+2. Opsi menu (F-02) belum dikerjakan
 
 ## Keputusan terbuka (dari PRD bagian 14)
 

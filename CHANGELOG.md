@@ -6,6 +6,14 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 
 ## [Belum dirilis]
 
+### Ditambah Fase 1.2 (2026-11-24)
+- Migrasi 003_categories_menu_items.sql: tabel categories (name, sort, active) dan menu_items (category_id, name, description, price, photo_path, available, sort). Harga bilangan bulat rupiah lewat CHECK, foto boleh kosong.
+- Modul menu server/src/modules/menu/routes.ts: daftar, buat, ubah, ubah urutan, aktif/nonaktif kategori; daftar, buat, ubah, ubah urutan, tersedia/habis menu. Tulis hanya admin, baca admin dan kasir.
+- GET /api/public/menu tanpa login: hanya kategori aktif dan menu tersedia, hanya id, nama, deskripsi, harga, photo_path.
+- Validasi zod: harga negatif, bukan bilangan bulat, nama kosong, dan kategori tidak ada ditolak 400.
+- Halaman admin web/src/pages/admin/menu.tsx untuk kelola kategori dan menu (target sentuh 44 px, mobile first), rute /admin.
+- Tes tests/menu.test.ts (7 tes): validasi harga, izin per peran, menu publik tidak membocorkan menu nonaktif, migrasi 003 setelah 001 dan 002.
+
 ### Ditambah
 - Dokumen awal: PRD.md, ARCHITECTURE.md, ROADMAP.md, SESSION.md, CHANGELOG.md, knowledge.md (2026-11-23)
 

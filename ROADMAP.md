@@ -19,7 +19,8 @@ Selesai jika: HP di Wi-Fi kafe membuka halaman web dari server, tes dasar lulus,
 
 ## Fase 1: Menu, Kasir tunai, Struk
 - [x] Login PIN dan peran
-- [ ] CRUD kategori dan menu, opsi menu
+- [x] CRUD kategori dan menu
+- [ ] Opsi menu (F-02)
 - [ ] Layar kasir: keranjang, bayar tunai, kembalian
 - [ ] Penomoran pesanan harian
 - [ ] Struk thermal lewat browser

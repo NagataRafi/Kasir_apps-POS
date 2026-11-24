@@ -9,8 +9,8 @@ Aturan: kerjakan satu fase pada satu waktu. Pecah fase menjadi tugas kecil yang 
 - [ ] Pasang skills ke .agents/skills (ponytail, caveman, ui-ux-pro-max)
 - [ ] Server Fastify dengan rute /api/health
 - [ ] SQLite, mode WAL, sistem migrasi, tabel settings dan users
-- [ ] Aplikasi web Vite dengan cangkang PWA kosong
-- [ ] Server menyajikan berkas statis web
+- [x] Aplikasi web Vite dengan cangkang PWA kosong
+- [x] Server menyajikan berkas statis web
 - [ ] .env.example dan .gitignore
 - [ ] Uji akses dari HP di Wi-Fi yang sama (cek jaringan WSL2)
 - [x] Commit pertama dan push ke GitHub

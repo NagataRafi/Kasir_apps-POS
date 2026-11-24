@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "tsx watch server/src/index.ts",
+    "build": "npm --prefix web run build",
+    "start": "tsx server/src/index.ts",
     "test": "vitest run",
-  "lint": "eslint ."
+    "lint": "eslint ."
   },
   "keywords": [],
   "type": "module",
   "dependencies": {
+    "@fastify/static": "^8.3.0",
     "better-sqlite3": "^13.2.0",
     "fastify": "^5.12.8",
     "zod": "^4.6.7"
@@ -19,6 +23,7 @@
     "@types/better-sqlite3": "^9.6.0",
     "@vitest/coverage-v8": "^5.1.1",
     "eslint": "^10.15.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"
   }

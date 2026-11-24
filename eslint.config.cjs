@@ -1,5 +1,9 @@
 module.exports = [
   {
+    // Build output, coverage, data, dan skrip CLI .cjs tidak ikut lint.
+    ignores: ['coverage/', 'dist/', '**/dist/', 'data/', 'scripts/'],
+  },
+  {
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',
@@ -7,7 +11,6 @@ module.exports = [
         console: 'readonly',
       },
     },
-    ignores: ['coverage/'],
     rules: {
       'no-console': 'warn',
       'no-unused-vars': 'warn',

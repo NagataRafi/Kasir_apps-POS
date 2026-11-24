@@ -5,8 +5,18 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
-- Tugas berjalan: completed (kategori dan menu, API dan halaman admin)
+- Tugas berjalan: completed (tugas 1.2b: web dapat dibangun dan dibuka)
 - Terakhir diperbarui: 2026-11-24
+
+## Catatan tugas 1.2b (2026-11-24)
+- web/index.html (Vite entry) ditambahkan; web/public/index.html dihapus agar tidak menimpa hasil build.
+- React 19, react-dom, react-router-dom, Tailwind v4 (@tailwindcss/vite) terpasang di web.
+- web/src/index.css dasar Tailwind; main.tsx memakai BrowserRouter; vite.config.ts memuat plugin react dan tailwind.
+- PWA sederhana: manifest.json dengan ikon favicon.svg, logo192.png, logo512.png (dibuat lokal, tanpa dependensi).
+- Fastify memakai @fastify/static dari web/dist dan setNotFoundHandler: rute halaman jatuh ke index.html, /api/* tetap JSON 404.
+- Skrip root: npm run dev (tsx watch), npm run build (vite build di web), npm start (tsx server).
+- Lint 0 error 0 warning setelah coverage, dist, data, dan scripts/ di-ignore.
+- Bukti curl: / dan /login HTML identik dengan div root, /api/health JSON, /api/public/menu JSON, login admin 200 dengan cookie kasir_session, /api/me 200.
 
 ## Catatan tugas 1.2 (2026-11-24)
 - Audit ulang 1.1: 8 syarat OK. Tidak ada perubahan source; DB lokal dihapus dan migrasi 001+002 dijalankan ulang.
@@ -37,6 +47,7 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Push ke cabang fase-1-kasir ke GitHub sudah selesai
 - Login PIN dan peran: fully implemented dengan scrypt hashing, rate limiting, role middleware
 - Tugas 1.2: migrasi 003, API kategori/menu, GET /api/public/menu, halaman admin kategori dan menu, tes menu
+- Tugas 1.2b: web Vite + Tailwind + PWA shell dapat dibangun, disajikan Fastify dengan fallback SPA, skrip build/start/dev
 
 ## Langkah berikutnya
 

@@ -6,6 +6,15 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 
 ## [Belum dirilis]
 
+### Ditambah Fase 1.2b (2026-11-24)
+- web/index.html sebagai entri Vite; web/public/index.html lama dihapus.
+- react-router-dom (BrowserRouter di main.tsx), Tailwind CSS v4 lewat @tailwindcss/vite, CSS dasar web/src/index.css.
+- Manifest PWA dan ikon sederhana: favicon.svg, logo192.png, logo512.png.
+- Fastify menyajikan web/dist lewat @fastify/static dengan fallback index.html untuk rute halaman; /api/* tetap JSON dan 404 JSON.
+- Skrip npm: build (web), start dan dev (server tsx).
+- eslint mengabaikan coverage, dist, data, dan scripts/ sehingga lint 0 error 0 warning.
+- Bukti curl: / dan /login 200 HTML dengan div root, /api/health dan /api/public/menu JSON, login admin 200 + /api/me 200.
+
 ### Ditambah Fase 1.2 (2026-11-24)
 - Migrasi 003_categories_menu_items.sql: tabel categories (name, sort, active) dan menu_items (category_id, name, description, price, photo_path, available, sort). Harga bilangan bulat rupiah lewat CHECK, foto boleh kosong.
 - Modul menu server/src/modules/menu/routes.ts: daftar, buat, ubah, ubah urutan, aktif/nonaktif kategori; daftar, buat, ubah, ubah urutan, tersedia/habis menu. Tulis hanya admin, baca admin dan kasir.

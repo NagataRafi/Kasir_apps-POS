@@ -5,8 +5,16 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
-- Tugas berjalan: completed (perbaikan 1.2b: bind 0.0.0.0, log localhost + alamat LAN, vite tanpa impor lintas folder)
+- Tugas berjalan: completed (perbaikan halaman login: PIN via keyboard, fokus otomatis, Enter)
 - Terakhir diperbarui: 2026-11-24
+
+## Catatan perbaikan halaman login (2026-11-24)
+- Kolom PIN: input type=password, inputMode numeric, autoComplete off, hanya digit, maksimal 12; papan angka layar tetap ada dan mengisi state yang sama.
+- Fokus otomatis ke kolom nama saat halaman dibuka; Enter di kolom nama pindah ke kolom PIN; form dikirim via Enter bila nama terisi dan PIN minimal 6 digit.
+- Hitungan digit ditampilkan sebagai "{n} dari maksimal 12 digit (minimal 6)" tanpa memperlihatkan digitnya.
+- Error untuk nama salah dan PIN salah tetap "Nama atau PIN salah".
+- Logika PIN dipindah ke web/src/lib/pin.ts (sanitizePin, appendPinDigit, canSubmitLogin) dan diuji di tests/pin.test.ts (1 tes, coverage pin.ts 100%).
+- 27 tes lulus, build lulus, lint 0 error 0 warning.
 
 ## Catatan perbaikan bind dan log (2026-11-24)
 - fastify.listen({ port: PORT, host: HOST }) dengan PORT default 4100 dan HOST default 0.0.0.0 dari server/src/config.ts. Tidak ada alamat tetap atau os.networkInterfaces untuk bind.
@@ -64,6 +72,7 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Tugas 1.2b: web Vite + Tailwind + PWA shell dapat dibangun, disajikan Fastify dengan fallback SPA, skrip build/start/dev
 - Revisi 1.2b: port server 4100 lewat PORT/HOST, proxy /api di Vite dev, dokumen akses HP diperbarui
 - Perbaikan 1.2b: bind 0.0.0.0, log localhost dan alamat LAN, Vite membaca PORT dari env tanpa impor lintas folder
+- Perbaikan login: PIN bisa diketik keyboard (digit saja, maks 12), fokus otomatis, Enter pindah kolom/kirim form, hitungan digit, tes validasi PIN
 
 ## Langkah berikutnya
 

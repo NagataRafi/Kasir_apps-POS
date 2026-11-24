@@ -7,6 +7,10 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 ## [Belum dirilis]
 
 ### Diubah (2026-11-24)
+- Halaman login: PIN dapat diisi dari keyboard fisik (type password, inputMode numeric, hanya digit, maks 12), papan angka layar tetap ada.
+- Fokus otomatis ke kolom nama, Enter di kolom nama pindah ke PIN, Enter mengirim form bila nama terisi dan PIN minimal 6 digit.
+- Tampilan jumlah digit "{n} dari maksimal 12 digit (minimal 6)" tanpa memperlihatkan digit.
+- Logika PIN di web/src/lib/pin.ts dengan tes tests/pin.test.ts.
 - Server mendengar di 0.0.0.0 dari HOST (default) sehingga localhost:4100 dapat diakses; log memuat baris localhost dan baris alamat LAN.
 - web/vite.config.ts membaca PORT dari process.env (default 4100); impor lintas folder dihapus sehingga peringatan Vite hilang.
 - Port server dipindah dari 3000 ke 4100 dan dapat diatur lewat PORT/HOST (server/src/config.ts); HOST default 0.0.0.0.

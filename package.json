@@ -7,6 +7,7 @@
     "dev": "tsx watch server/src/index.ts",
     "build": "npm --prefix web run build",
     "start": "tsx server/src/index.ts",
+    "reset-pin": "tsx scripts/reset-pin.ts",
     "test": "vitest run",
     "lint": "eslint ."
   },

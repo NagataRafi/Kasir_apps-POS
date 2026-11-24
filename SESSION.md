@@ -5,8 +5,15 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
-- Tugas berjalan: completed (perbaikan halaman login: PIN via keyboard, fokus otomatis, Enter)
+- Tugas berjalan: completed (skrip reset PIN admin)
 - Terakhir diperbarui: 2026-11-24
+
+## Catatan skrip reset PIN (2026-11-24)
+- scripts/reset-pin.ts dijalankan lewat `npm run reset-pin -- <nama>`; PIN baru dari env NEW_PIN (bukan argumen) agar tidak masuk riwayat shell dan tidak pernah dicetak.
+- Logika di server/src/modules/auth/reset-pin.ts: validasi hanya angka minimal 6 digit, hashPin() yang sama dengan login, update pin_hash, hapus semua sesi pengguna, kosongkan hitungan percobaan, tolak pengguna yang tidak ada.
+- Hitungan percobaan login disimpan di memori proses server, jadi setelah reset jalankan ulang server; dicatat di docs/operasi.md.
+- Tes tests/reset-pin.test.ts: PIN lama 401, PIN baru 200, sesi lama /api/me 401, PIN pendek/bukan angka ditolak tanpa mengubah hash, pengguna tidak ada ditolak.
+- Bukti CLI pada salinan data/data.db: reset Admin sukses, sesi 0, hash format salt:key, PIN tidak muncul di hash. 30 tes lulus, lint 0 error 0 warning.
 
 ## Catatan perbaikan halaman login (2026-11-24)
 - Kolom PIN: input type=password, inputMode numeric, autoComplete off, hanya digit, maksimal 12; papan angka layar tetap ada dan mengisi state yang sama.

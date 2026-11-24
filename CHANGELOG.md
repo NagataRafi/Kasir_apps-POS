@@ -6,6 +6,11 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 
 ## [Belum dirilis]
 
+### Ditambah (2026-11-24)
+- Skrip reset PIN: `NEW_PIN=xxxxxx npm run reset-pin -- Admin` (scripts/reset-pin.ts, logika di server/src/modules/auth/reset-pin.ts).
+- Reset memvalidasi PIN hanya angka minimal 6 digit, memakai hashPin() yang sama dengan login, menghapus semua sesi pengguna, mengosongkan hitungan percobaan login, dan menolak pengguna yang tidak ada.
+- docs/operasi.md berisi cara pakai reset PIN; tests/reset-pin.test.ts menguji PIN lama gagal, PIN baru berhasil, sesi lama tidak valid, dan PIN pendek ditolak.
+
 ### Diubah (2026-11-24)
 - Halaman login: PIN dapat diisi dari keyboard fisik (type password, inputMode numeric, hanya digit, maks 12), papan angka layar tetap ada.
 - Fokus otomatis ke kolom nama, Enter di kolom nama pindah ke PIN, Enter mengirim form bila nama terisi dan PIN minimal 6 digit.

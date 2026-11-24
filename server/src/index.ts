@@ -7,6 +7,7 @@ import { initDb } from './modules/auth/model'
 import { registerAuthRoutes } from './modules/auth/routes'
 import { createAuthMiddleware } from './modules/auth/middleware'
 import { registerMenuRoutes } from './modules/menu/routes'
+import { PORT, HOST } from './config'
 
 // db dibuka dan semua migrasi dijalankan berurutan oleh db/index.ts.
 initDb(db)
@@ -47,7 +48,7 @@ fastify.setNotFoundHandler((request, reply) => {
 
 // Start server
 fastify
-  .listen({ port: 3000, host: '0.0.0.0' })
+  .listen({ port: PORT, host: HOST })
   .then((address) => {
     console.log(`Server running at ${address}`)
   })

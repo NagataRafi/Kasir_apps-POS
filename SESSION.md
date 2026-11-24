@@ -5,8 +5,16 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
-- Tugas berjalan: completed (tugas 1.2b: web dapat dibangun dan dibuka)
+- Tugas berjalan: completed (revisi 1.2b: port server 4100 dan dapat diatur lewat env)
 - Terakhir diperbarui: 2026-11-24
+
+## Catatan revisi port (2026-11-24)
+- Port 3000 tidak dipakai lagi. server/src/index.ts membaca PORT (default 4100) dan HOST (default 0.0.0.0) dari server/src/config.ts.
+- .env.example memuat PORT=4100 dan HOST=0.0.0.0. .env lokal tidak diubah (belum punya PORT, jadi default 4100 berlaku).
+- web/vite.config.ts mem-proxy /api ke http://localhost:PORT (default dari server/src/config.ts) agar npm --prefix web run dev bisa dipakai bersama server. Tidak ada angka port ditulis ulang di file lain.
+- docs/wsl2-akses-hp.md memakai 4100 (portproxy dan rentang 4100-4110).
+- Tes memakai fastify.inject (tanpa port tetap); tidak ada perubahan tes.
+- Bukti: server log "Server running at http://10.255.255.254:4100", curl /api/health 200 JSON, curl -I /login 200 text/html, port 3000 menolak koneksi (curl exit 7).
 
 ## Catatan tugas 1.2b (2026-11-24)
 - web/index.html (Vite entry) ditambahkan; web/public/index.html dihapus agar tidak menimpa hasil build.
@@ -48,6 +56,7 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Login PIN dan peran: fully implemented dengan scrypt hashing, rate limiting, role middleware
 - Tugas 1.2: migrasi 003, API kategori/menu, GET /api/public/menu, halaman admin kategori dan menu, tes menu
 - Tugas 1.2b: web Vite + Tailwind + PWA shell dapat dibangun, disajikan Fastify dengan fallback SPA, skrip build/start/dev
+- Revisi 1.2b: port server 4100 lewat PORT/HOST, proxy /api di Vite dev, dokumen akses HP diperbarui
 
 ## Langkah berikutnya
 

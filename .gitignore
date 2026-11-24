@@ -6,6 +6,7 @@ yarn.lock
 # Production
 dist/
 *.env*
+!.env.example
 
 # Database
 data.db

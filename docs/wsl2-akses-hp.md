@@ -17,15 +17,15 @@ Atau aktifkan mode jaringan mirrored untuk mengizinkan perangkat lain di Wi-Fi m
 # Tambahkan ke file .wslconfig di C:\Users\<username>\
 cat > "$env:USERPROFILE\.wslconfig" @"
 [network]
-hostPorts = 3000-3010 #->guestPorts = 3000-3010
+hostPorts = 4100-4110 #->guestPorts = 4100-4110
 "@
 ```
 
 Atau gunakan portproxy Windows:
 
 ```powershell
-# Redirect port 3000 dari Windows ke IP WSL
-netsh interface portproxy add v4toconnect listener=3000 connectaddress=<IP_WSL> connectport=3000
+# Redirect port 4100 dari Windows ke IP WSL
+netsh interface portproxy add v4toconnect listener=4100 connectaddress=<IP_WSL> connectport=4100
 ```
 
 ## 2. Cek IP Address WSL
@@ -55,12 +55,12 @@ npm run dev  # atau node server/src/index.ts
 
 1. Pastikan HP dan PC server (WSL) terhubung ke Wi-Fi yang sama di kafe
 2. Buka browser di HP
-3. Akses alamat: `http://<IP_WSL>:3000`
+3. Akses alamat: `http://<IP_WSL>:4100`
 
 Harus muncul halaman KASIR POS Kafe dengan teks "KASIR POS Kafe Aplikasi"
 
 Atau cek health endpoint:
-`http://<IP_WSL>:3000/api/health`
+`http://<IP_WSL>:4100/api/health`
 
 Harus respons: `{"status":"ok","timestamp":"..."}`
 
@@ -68,9 +68,9 @@ Harus respons: `{"status":"ok","timestamp":"..."}`
 
 Jika tidak bisa diakses dari HP:
 
-- Cek firewall Windows: pastikan port 3000izinkan untuk jaringan privat
+- Cek firewall Windows: pastikan port 4100 diizinkan untuk jaringan privat
 - Cek apakah networking mode di .wslconfig sudah benar
-- Coba akses lewat `http://10.0.0.2:3000` (IP khusus WSL di Wi-Fi)
+- Coba akses lewat `http://10.0.0.2:4100` (IP khusus WSL di Wi-Fi)
 - Matikan antivirus sementara di Windows
 
 ## 6. Catatan Penting
@@ -82,11 +82,11 @@ Jika tidak bisa diakses dari HP:
 ### Contoh perintah di Windows (CMD):
 
 ```cmd
-netsh interface portproxy add v4toconnect listener=3000 connectaddress=172.20.32.1 connectport=3000
+netsh interface portproxy add v4toconnect listener=4100 connectaddress=172.20.32.1 connectport=4100
 ```
 
 Setelah uji selesai, hapus rule portproxy:
 
 ```cmd
-netsh interface portproxy delete v4toconnect listener=3000 connectport=3000
+netsh interface portproxy delete v4toconnect listener=4100 connectport=4100
 ```

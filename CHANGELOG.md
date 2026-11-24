@@ -6,6 +6,12 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 
 ## [Belum dirilis]
 
+### Diubah (2026-11-24)
+- Port server dipindah dari 3000 ke 4100 dan dapat diatur lewat PORT/HOST (server/src/config.ts); HOST default 0.0.0.0.
+- .env.example memuat PORT=4100 dan HOST=0.0.0.0.
+- web/vite.config.ts mem-proxy /api ke http://localhost:PORT untuk npm --prefix web run dev.
+- docs/wsl2-akses-hp.md memakai port 4100 (portproxy dan rentang 4100-4110).
+
 ### Ditambah Fase 1.2b (2026-11-24)
 - web/index.html sebagai entri Vite; web/public/index.html lama dihapus.
 - react-router-dom (BrowserRouter di main.tsx), Tailwind CSS v4 lewat @tailwindcss/vite, CSS dasar web/src/index.css.

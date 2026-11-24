@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import fastifyStatic from '@fastify/static'
 import { db } from './db/index'
 import { initDb } from './modules/auth/model'
@@ -46,11 +47,23 @@ fastify.setNotFoundHandler((request, reply) => {
   return reply.type('text/html').sendFile('index.html')
 })
 
+// Alamat IPv4 non-loopback untuk akses perangkat lain (hanya untuk pesan log).
+function localNetworkUrls(port: number): string[] {
+  return Object.values(os.networkInterfaces())
+    .flatMap((items) => items ?? [])
+    .filter((item) => item.family === 'IPv4' && !item.internal)
+    .map((item) => `http://${item.address}:${port}`)
+}
+
 // Start server
 fastify
   .listen({ port: PORT, host: HOST })
-  .then((address) => {
-    console.log(`Server running at ${address}`)
+  .then(() => {
+    console.log(`Server berjalan di http://localhost:${PORT}`)
+    const lan = localNetworkUrls(PORT)
+    console.log(
+      `Akses perangkat lain: ${lan.length > 0 ? lan.join(', ') : 'tidak ada alamat IPv4 non-loopback terdeteksi'}`
+    )
   })
   .catch((err) => {
     console.error(err)

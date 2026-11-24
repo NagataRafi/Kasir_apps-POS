@@ -7,6 +7,8 @@ Kategori: Ditambah, Diubah, Diperbaiki, Dihapus, Keamanan.
 ## [Belum dirilis]
 
 ### Diubah (2026-11-24)
+- Server mendengar di 0.0.0.0 dari HOST (default) sehingga localhost:4100 dapat diakses; log memuat baris localhost dan baris alamat LAN.
+- web/vite.config.ts membaca PORT dari process.env (default 4100); impor lintas folder dihapus sehingga peringatan Vite hilang.
 - Port server dipindah dari 3000 ke 4100 dan dapat diatur lewat PORT/HOST (server/src/config.ts); HOST default 0.0.0.0.
 - .env.example memuat PORT=4100 dan HOST=0.0.0.0.
 - web/vite.config.ts mem-proxy /api ke http://localhost:PORT untuk npm --prefix web run dev.

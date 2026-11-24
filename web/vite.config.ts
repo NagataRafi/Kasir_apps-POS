@@ -1,22 +1,19 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { DEFAULT_PORT } from '../server/src/config'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const port = env.PORT || String(DEFAULT_PORT)
+// Port API server: env PORT, default 4100 (sama dengan server).
+const apiPort = process.env.PORT || '4100'
 
-  return {
-    plugins: [react(), tailwindcss()],
-    server: {
-      proxy: {
-        '/api': {
-          target: `http://localhost:${port}`,
-          changeOrigin: true,
-        },
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      '/api': {
+        target: `http://localhost:${apiPort}`,
+        changeOrigin: true,
       },
     },
-    build: { outDir: 'dist', assetsDir: 'assets' },
-  }
+  },
+  build: { outDir: 'dist', assetsDir: 'assets' },
 })

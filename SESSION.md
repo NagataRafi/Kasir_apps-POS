@@ -5,8 +5,14 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 ## Status saat ini
 
 - Fase aktif: 1 (Fitur) - tugas 1.1 dan 1.2 selesai
-- Tugas berjalan: completed (revisi 1.2b: port server 4100 dan dapat diatur lewat env)
+- Tugas berjalan: completed (perbaikan 1.2b: bind 0.0.0.0, log localhost + alamat LAN, vite tanpa impor lintas folder)
 - Terakhir diperbarui: 2026-11-24
+
+## Catatan perbaikan bind dan log (2026-11-24)
+- fastify.listen({ port: PORT, host: HOST }) dengan PORT default 4100 dan HOST default 0.0.0.0 dari server/src/config.ts. Tidak ada alamat tetap atau os.networkInterfaces untuk bind.
+- Log: "Server berjalan di http://localhost:4100" lalu "Akses perangkat lain: http://<ip-lan>:4100" (IPv4 non-loopback dari os.networkInterfaces, hanya untuk pesan).
+- web/vite.config.ts tidak lagi mengimpor server/src/config; port proxy dibaca dari process.env.PORT dengan default 4100. Peringatan Vite hilang.
+- Bukti: ss -ltn -> LISTEN 0.0.0.0:4100; curl localhost:4100 dan 127.0.0.1:4100 sama-sama 200 JSON; server dihentikan setelah uji; 26 tes lulus; lint 0 error 0 warning.
 
 ## Catatan revisi port (2026-11-24)
 - Port 3000 tidak dipakai lagi. server/src/index.ts membaca PORT (default 4100) dan HOST (default 0.0.0.0) dari server/src/config.ts.
@@ -57,6 +63,7 @@ File ini adalah catatan status terkini. Agent membaca file ini di awal sesi dan 
 - Tugas 1.2: migrasi 003, API kategori/menu, GET /api/public/menu, halaman admin kategori dan menu, tes menu
 - Tugas 1.2b: web Vite + Tailwind + PWA shell dapat dibangun, disajikan Fastify dengan fallback SPA, skrip build/start/dev
 - Revisi 1.2b: port server 4100 lewat PORT/HOST, proxy /api di Vite dev, dokumen akses HP diperbarui
+- Perbaikan 1.2b: bind 0.0.0.0, log localhost dan alamat LAN, Vite membaca PORT dari env tanpa impor lintas folder
 
 ## Langkah berikutnya
 
